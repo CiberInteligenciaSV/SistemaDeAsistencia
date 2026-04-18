@@ -5,3 +5,4 @@ const _SUPABASE_ANON_KEY = 'sb_publishable_jN0geXUtTxTyuQFm0WgNUw_v2DdqqgE';
 
 // Inicializar cliente Supabase globalmente
 window.supabaseClient = supabase.createClient(_SUPABASE_URL, _SUPABASE_ANON_KEY);
+console.log(">>> CONFIG.JS CARGADO EXITOSAMENTE <<<", !!window.supabaseClient);
