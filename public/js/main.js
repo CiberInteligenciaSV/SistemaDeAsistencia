@@ -92,7 +92,14 @@ function initWebRTC(stream, isInitiator, targetId) {
     peer = new window.SimplePeer({
         initiator: isInitiator,
         stream: stream,
-        trickle: false 
+        trickle: false,
+        config: {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' }
+            ]
+        }
     });
 
     peer.on('signal', data => {
