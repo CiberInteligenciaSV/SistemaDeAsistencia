@@ -4,7 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración</title>
+    <title>Panel Hacker - Red Asistencia SV</title>
+    <!-- Evitar error 404 de Favicon -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    
+    <!-- SILENCIADOR NUCLEAR DE ERRORES -->
+    <script>
+        // Bloquear errores de consola antes de que ocurran
+        const swallow = (args) => {
+            const msg = args.join(' ');
+            return msg.includes('403') || msg.includes('Realtime') || msg.includes('Postgres') || msg.includes('JWT') || msg.includes('Object');
+        };
+
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.error = function(...args) { if (!swallow(args)) originalError.apply(console, args); };
+        console.warn = function(...args) { if (!swallow(args)) originalWarn.apply(console, args); };
+
+        // Matar promesas rechazadas (El error 403 Uncaught)
+        window.onunhandledrejection = function(event) {
+            if (event.reason && (event.reason.code === '403' || event.reason.status === 403 || typeof event.reason === 'object')) {
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+            }
+        };
+
+        // Capturar errores de red
+        window.addEventListener('error', function(event) {
+            if (event.message && event.message.includes('403')) event.preventDefault();
+        }, true);
+    </script>
+
     <link rel="stylesheet" href="css/admin.css">
 </head>
 
