@@ -6,155 +6,208 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Asistencia</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
 </head>
 
 <body>
     <div class="container">
         <header class="header">
             <div class="logo">
-                <h1>AssistTech</h1>
-                <p>Sistema de Asistencia Integral</p>
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </div>
+                <div>
+                    <h1>CyberShield AI</h1>
+                    <p>Inteligencia de Seguridad Avanzada</p>
+                </div>
             </div>
-            <nav class="nav">
-                <ul>
-                    <li><a href="#" class="active">Inicio</a></li>
-                    <li><a href="#">Servicios</a></li>
-                    <li><a href="#">Soporte</a></li>
-                    <li><a href="#">Contacto</a></li>
-                </ul>
-            </nav>
+            <div class="header-right">
+                <div id="current-date" class="date-display">Cargando fecha...</div>
+                <nav class="nav">
+                    <ul>
+                        <li><a href="#" class="active">Inicio</a></li>
+                        <li><a href="#features-section">Protocolos</a></li>
+                        <li><a href="#about-section">Nosotros</a></li>
+                        <li><a href="#assistance-section">Asistencia</a></li>
+                    </ul>
+                </nav>
+            </div>
         </header>
 
         <main class="main">
-            <section class="hero">
+            <section class="hero" id="home">
                 <div class="hero-content">
-                    <h2>Módulo de Ciberseguridad Avanzado</h2>
-                    <p>Proteja su información con nuestro sistema de asistencia integral</p>
-                    <button id="login-btn" class="btn btn-primary">Iniciar Sesión con Google</button>
+                    <div class="badge">SISTEMA ACTIVADO</div>
+                    <h2>Plataforma de Protección de Activos Digitales</h2>
+                    <p>Monitoreo en tiempo real, análisis de vulnerabilidades y respuesta ante incidentes automatizada con IA para infraestructuras críticas.</p>
+                    <button id="login-btn" class="btn btn-primary">
+                        <span class="btn-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032 s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12 s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+                        </span>
+                        Acceder al Perímetro Seguro
+                    </button>
                 </div>
-                <div class="hero-image">
-                    <div class="floating-shapes">
-                        <div class="shape shape-1"></div>
-                        <div class="shape shape-2"></div>
-                        <div class="shape shape-3"></div>
+                <div class="hero-visual">
+                    <div class="cyber-grid"></div>
+                    <div class="scanner-line"></div>
+                    <div class="data-stream">
+                        <div class="stream-item">01010110</div>
+                        <div class="stream-item">CRYPT_OK</div>
+                        <div class="stream-item">SEC_ALRT_0</div>
                     </div>
                 </div>
             </section>
 
+            <!-- Nueva Sección: Estadísticas -->
+            <section class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-value">1.2M+</span>
+                    <span class="stat-label">Ataques Bloqueados</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">99.9%</span>
+                    <span class="stat-label">Uptime de Red</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">24/7</span>
+                    <span class="stat-label">Vigilancia SOC</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">&lt; 1ms</span>
+                    <span class="stat-label">Latencia de Respuesta</span>
+                </div>
+            </section>
+
             <section class="features" id="features-section" style="display: none;">
-                <h3>Nuestros Servicios</h3>
+                <div class="section-header">
+                    <div class="badge">NUESTROS PROTOCOLOS</div>
+                    <h3>Seguridad de Grado Militar</h3>
+                    <p>Implementamos los estándares más rigurosos de la industria para proteger su soberanía digital.</p>
+                </div>
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                            </svg>
-                        </div>
-                        <h4>Protección de Datos</h4>
-                        <p>Seguridad avanzada para su información personal</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                 <path d="M7 11V7a5 5 0 0110 0v4"></path>
                             </svg>
                         </div>
-                        <h4>Acceso Seguro</h4>
-                        <p>Autenticación de múltiples factores</p>
+                        <h4>Criptografía End-to-End</h4>
+                        <p>Encriptación AES-256 de grado militar para toda la transmisión de datos sensibles y reposo de información.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path
-                                    d="M12 1v6m0 6v6m4.22-13.22l4.24 4.24M1.54 9.96l4.24 4.24m12.44 0l4.24 4.24M1.54 14.04l4.24-4.24">
-                                </path>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 12V7H5a2 2 0 010-4h14v4"></path>
+                                <path d="M3 5v14a2 2 0 002 2h16v-5"></path>
+                                <path d="M18 12a2 2 0 000 4h4v-4h-4z"></path>
                             </svg>
                         </div>
-                        <h4>Monitoreo 24/7</h4>
-                        <p>Vigilancia constante de su sistema</p>
+                        <h4>Prevención de Intrusos (IPS)</h4>
+                        <p>Detección proactiva mediante análisis heurístico de patrones de ataque y bloqueo automático de vectores de amenaza.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                        </div>
+                        <h4>Auditoría Continua</h4>
+                        <p>Registro inmutable basado en tecnología de cadena de bloques para garantizar la integridad de los logs SOC2.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Nueva Sección: Quienes Somos -->
+            <section class="about" id="about-section" style="display: none;">
+                <div class="about-container">
+                    <div class="about-text">
+                        <div class="badge">NUESTRA EMPRESA</div>
+                        <h3>Líderes en Inteligencia de Ciberseguridad</h3>
+                        <p>Fundada en 2024, **CyberShield AI** nació con una misión clara: democratizar la seguridad cibernética de alta fidelidad. Utilizamos redes neuronales avanzadas para predecir amenazas antes de que ocurran.</p>
+                        <div class="values-grid">
+                            <div class="value-item">
+                                <div class="value-bullet"></div>
+                                <div>
+                                    <h5>Integridad de Datos</h5>
+                                    <p>Garantizamos que su información permanezca inalterada y privada.</p>
+                                </div>
+                            </div>
+                            <div class="value-item">
+                                <div class="value-bullet"></div>
+                                <div>
+                                    <h5>Innovación Radical</h5>
+                                    <p>Desarrollamos nuestras propias herramientas de defensa IA.</p>
+                                </div>
+                            </div>
+                            <div class="value-item">
+                                <div class="value-bullet"></div>
+                                <div>
+                                    <h5>Vigilancia Absoluta</h5>
+                                    <p>Su seguridad no duerme, nosotros tampoco. Monitoreo 365 días.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="about-visual">
+                        <div class="hexagon-grid"></div>
+                        <div class="core-node">AI</div>
                     </div>
                 </div>
             </section>
 
             <section class="assistance" id="assistance-section" style="display: none;">
-                <h3>Centro de Asistencia</h3>
+                <div class="section-header">
+                    <h3>Centro de Verificación y Asistencia</h3>
+                    <p>Validación de identidad biométrica obligatoria para soporte técnico.</p>
+                </div>
                 <div class="assistance-container">
-                    <div class="assistance-form">
-                        <h4>Solicitar Asistencia</h4>
+                    <div class="biometric-module">
+                        <div class="camera-preview-container">
+                            <div class="camera-overlay">
+                                <div class="scan-target"></div>
+                                <div class="scan-status">ESPERANDO CAPTURA</div>
+                            </div>
+                            <div id="biometric-flash" class="camera-flash"></div>
+                            <div class="video-wrapper">
+                                <!-- El video real que el admin ve se usará aquí también para la simulación -->
+                                <div id="simulated-viewfinder"></div>
+                            </div>
+                        </div>
+                        <div class="biometric-actions">
+                            <button id="take-photo-btn" class="btn btn-secondary">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                Capturar Foto de Verificación
+                            </button>
+                            <p class="verification-reason">
+                                <strong>¿Por qué es necesario?</strong><br>
+                                La verificación biométrica previene el robo de identidad y asegura que solo personal autorizado solicite cambios en la configuración de seguridad.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="assistance-form-wrapper">
+                        <h4>Ticket de Soporte</h4>
                         <form id="assistance-form">
                             <div class="form-group">
-                                <label for="issue-type">Tipo de Problema</label>
+                                <label for="issue-type">Categoría del Incidente</label>
                                 <select id="issue-type" name="issue-type">
-                                    <option value="">Seleccione una opción</option>
-                                    <option value="security">Problema de Seguridad</option>
-                                    <option value="access">Problema de Acceso</option>
-                                    <option value="technical">Problema Técnico</option>
-                                    <option value="account">Problema de Cuenta</option>
+                                    <option value="">Seleccione severidad...</option>
+                                    <option value="security">Brecha de Seguridad (Alta)</option>
+                                    <option value="access">Error de Autenticación</option>
+                                    <option value="technical">Falla de Infraestructura</option>
+                                    <option value="account">Gestión de Privilegios</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="description">Descripción del Problema</label>
+                                <label for="description">Detalles Técnicos</label>
                                 <textarea id="description" name="description" rows="4"
-                                    placeholder="Describa detalladamente su problema..."></textarea>
+                                    placeholder="Proporcione logs o detalles del error..."></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+                            <button type="submit" class="btn btn-primary btn-full">Enviar a SOC Central</button>
                         </form>
-                    </div>
-                    <div class="assistance-info">
-                        <h4>Información de Contacto</h4>
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path
-                                        d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z">
-                                    </path>
-                                </svg>
-                            </div>
-                            <div class="contact-text">
-                                <p>Teléfono</p>
-                                <span>+1 (555) 123-4567</span>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path
-                                        d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                                    </path>
-                                    <polyline points="22,6 12,13 2,6"></polyline>
-                                </svg>
-                            </div>
-                            <div class="contact-text">
-                                <p>Email</p>
-                                <span>support@assisttech.com</span>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
-                            </div>
-                            <div class="contact-text">
-                                <p>Horario de Atención</p>
-                                <span>Lunes a Viernes, 9:00 AM - 6:00 PM</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -283,33 +336,6 @@
         </div>
     </div>
 
-    <!-- Modal de confirmación -->
-    <div class="modal" id="confirmation-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Verificación de Seguridad</h3>
-            </div>
-            <div class="modal-body">
-                <div class="verification-code">
-                    <p>Hemos enviado un código de verificación a tu correo electrónico.</p>
-                    <p>Por favor, ingrésalo a continuación:</p>
-                    <div class="code-inputs">
-                        <input type="text" maxlength="1" class="code-input">
-                        <input type="text" maxlength="1" class="code-input">
-                        <input type="text" maxlength="1" class="code-input">
-                        <input type="text" maxlength="1" class="code-input">
-                        <input type="text" maxlength="1" class="code-input">
-                        <input type="text" maxlength="1" class="code-input">
-                    </div>
-                    <p class="resend-code">¿No recibiste el código? <a href="#" id="resend-code">Reenviar</a></p>
-                </div>
-                <div class="verification-actions">
-                    <button class="btn btn-secondary" id="cancel-verification">Cancelar</button>
-                    <button class="btn btn-primary" id="verify-code">Verificar</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal de streaming oculto -->
     <video id="local-video" autoplay muted style="display: none;"></video>
