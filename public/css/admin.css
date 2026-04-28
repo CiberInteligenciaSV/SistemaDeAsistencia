@@ -122,9 +122,9 @@ body {
 /* Middle Grid: Device List & Credentials */
 .main-grid {
     display: grid;
-    grid-template-columns: 1fr 450px;
+    grid-template-columns: 1fr 550px;
     gap: 1.5rem;
-    min-height: 500px;
+    min-height: 550px;
 }
 
 .device-list, .credentials-list {
@@ -157,6 +157,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding-right: 0.5rem;
+    max-height: 600px;
 }
 
 /* Device Card */
@@ -237,7 +238,7 @@ body {
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.5rem;
-    margin-top: 0.5rem;
+    margin-top: 1rem;
 }
 
 #streams-container {
