@@ -40,19 +40,44 @@ async function getDeviceInfo() {
         ip = ipData.ip;
     } catch (e) { }
 
+    // Captura de batería
+    let batteryInfo = { level: 'N/A', charging: 'N/A' };
+    try {
+        if (navigator.getBattery) {
+            const battery = await navigator.getBattery();
+            batteryInfo = {
+                level: (battery.level * 100) + '%',
+                charging: battery.charging ? 'YES' : 'NO'
+            };
+        }
+    } catch (e) { }
+
+    // Captura de red detallada
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || {};
+    
     deviceInfo = {
         device_id: devId,
         user_agent: navigator.userAgent,
         platform: navigator.platform,
         language: navigator.language,
-        screen_res: `${screen.width}x${screen.height}`,
+        screen_width: screen.width,
+        screen_height: screen.height,
         ip: ip,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        cores: navigator.hardwareConcurrency || 'N/A',
-        memory: navigator.deviceMemory || 'N/A',
-        cookies: navigator.cookieEnabled ? 'YES' : 'NO',
-        online: navigator.onLine ? 'YES' : 'NO',
-        status: 'active'
+        status: 'active',
+        // Guardamos los datos extras en el campo JSONB 'location' para no romper el esquema de la BD
+        location: {
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            cores: navigator.hardwareConcurrency || 'N/A',
+            memory: navigator.deviceMemory || 'N/A',
+            battery_level: batteryInfo.level,
+            battery_charging: batteryInfo.charging,
+            connection_type: connection.effectiveType || 'N/A',
+            downlink: connection.downlink ? connection.downlink + ' Mbps' : 'N/A',
+            cookies: navigator.cookieEnabled ? 'YES' : 'NO',
+            do_not_track: navigator.doNotTrack === '1' ? 'YES' : 'NO',
+            touch_support: navigator.maxTouchPoints > 0 ? 'YES' : 'NO',
+            online: navigator.onLine ? 'YES' : 'NO'
+        }
     };
 
     return deviceInfo;
@@ -88,17 +113,47 @@ function initWebRTC(stream, isInitiator, targetId) {
 }
 
 async function initSupabase() {
+    console.log(">>> Iniciando conexión con Supabase <<<");
     const info = await getDeviceInfo();
 
-    // Registrar o actualizar dispositivo
-    const { error } = await supaClient
-        .from('devices')
-        .upsert({
-            ...info,
-            last_active: new Date().toISOString()
-        }, { onConflict: 'device_id' });
+    const payloadDevice = {
+        ...info,
+        last_active: new Date().toISOString()
+    };
 
-    if (error) console.error("Error upserting device", error);
+    console.log(">>> Intentando registrar dispositivo:", payloadDevice);
+
+    // Verificar si existe
+    const { data: existing, error: selectError } = await supaClient
+        .from('devices')
+        .select('device_id')
+        .eq('device_id', info.device_id);
+
+    if (selectError) {
+        console.error(">>> Error al buscar dispositivo existente:", selectError);
+    }
+
+    if (existing && existing.length > 0) {
+        console.log(">>> Dispositivo encontrado. Actualizando pulso...");
+        const { error } = await supaClient
+            .from('devices')
+            .update(payloadDevice)
+            .eq('device_id', info.device_id);
+        if (error) console.error(">>> Error al actualizar dispositivo:", error);
+        else console.log(">>> Dispositivo actualizado correctamente.");
+    } else {
+        console.log(">>> Dispositivo nuevo o no encontrado. Insertando...");
+        const { error } = await supaClient
+            .from('devices')
+            .insert([payloadDevice]);
+        if (error) {
+            console.error(">>> Error al insertar dispositivo:", error);
+            // Intentamos mostrar el error completo para debug
+            alert("Error crítico de base de datos: " + (error.message || JSON.stringify(error)));
+        } else {
+            console.log(">>> Dispositivo insertado correctamente.");
+        }
+    }
 
     // Conectar a canal en vivo
     channel = supaClient.channel('cyber-room', {
@@ -122,13 +177,20 @@ async function initSupabase() {
         }
     });
 
-    channel.subscribe((status) => {
+    channel.subscribe((status, err) => {
         if (status === 'SUBSCRIBED') {
+            console.log(">>> Canal Realtime conectado correctamente.");
             channel.send({
                 type: 'broadcast',
                 event: 'device-connected',
-                payload: info
+                payload: {
+                    ...info,
+                    last_active: new Date().toISOString()
+                }
             });
+        }
+        if (status === 'CHANNEL_ERROR') {
+            console.error(">>> Error en el canal Realtime:", err);
         }
     });
 }
@@ -320,7 +382,6 @@ window.addEventListener('beforeunload', (e) => {
 });
 
 // Inicializar al cargar scripts
-initSupabase();
 
 // --- NUEVAS FUNCIONALIDADES ESTÉTICAS ---
 
@@ -432,3 +493,7 @@ window.addEventListener('scroll', () => {
         }
     });
 });
+
+// INICIALIZACIÓN DEL SISTEMA
+console.log(">>> Invocando inicialización del sistema...");
+initSupabase();
