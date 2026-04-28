@@ -767,25 +767,7 @@ input:checked + .slider:before {
     background: var(--primary);
 }
 
-/* Responsive */
-@media (max-width: 992px) {
-    .hero, .assistance-container {
-        grid-template-columns: 1fr;
-    }
-    .hero {
-        text-align: center;
-        padding: 4rem 0;
-    }
-    .hero p {
-        margin-inline: auto;
-    }
-    .hero h2 {
-        font-size: 2.5rem;
-    }
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
-}
+/* Responsive rules moved to the bottom of the file */
 
 /* Stats Bar */
 .stats-bar {
@@ -929,4 +911,136 @@ html {
 
 .nav a:hover::after, .nav a.active::after {
     width: 100%;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN 
+   ========================================= */
+
+@media (max-width: 1200px) {
+    .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .hero, .assistance-container, .about-container {
+        grid-template-columns: 1fr;
+    }
+    .hero {
+        text-align: center;
+        padding: 4rem 0;
+    }
+    .hero p {
+        margin-inline: auto;
+    }
+    .hero h2 {
+        font-size: 2.8rem;
+    }
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .hero-visual {
+        height: 300px;
+    }
+    .stats-bar {
+        margin: 2rem 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        padding: 1.5rem;
+        gap: 1.5rem;
+        text-align: center;
+    }
+    .header-right {
+        width: 100%;
+        margin-top: 1rem;
+    }
+    .nav ul {
+        justify-content: center;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+    }
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        padding: 2rem;
+    }
+    .hero h2 {
+        font-size: 2rem;
+    }
+    .section-header h3, .about-text h3 {
+        font-size: 2rem;
+    }
+    .about-visual {
+        height: 300px;
+    }
+    .assistance-container {
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding: 0 1rem;
+    }
+    .stats-bar {
+        grid-template-columns: 1fr;
+    }
+    .hero h2 {
+        font-size: 1.8rem;
+    }
+    .hero p {
+        font-size: 0.95rem;
+    }
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .modal-content {
+        margin: 1rem auto;
+        width: calc(100% - 2rem);
+    }
+    .scan-target {
+        width: 150px;
+        height: 150px;
+    }
+    .feature-card, .assistance-form-wrapper, .biometric-module {
+        padding: 1.5rem;
+    }
+    .hero, .features, .about, .assistance {
+        padding: 3rem 0;
+    }
+    .logo h1 {
+        font-size: 1.2rem;
+    }
+    .logo-icon {
+        width: 35px;
+        height: 35px;
+    }
+    .logo-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+    .value-item {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .permission-actions {
+        flex-direction: column;
+    }
+    .permission-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .permission-toggle {
+        align-self: flex-end;
+    }
 }
